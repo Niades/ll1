@@ -96,12 +96,12 @@
 			var f = g.follow(new NonTerm($(this).val()));
 			$('.follow-result').html(f.map(function(s){return s.name}).join(', '));
 		});
+		$('#do-parse').on('click', function() {
+			parseGrammar();
+			render();
+		});
 	}
 
-	$('#do-parse').on('click', function() {
-		parseGrammar();
-		render();
-	});
 	$(document).ready(function() {
 		parseGrammar();
 		attachDomEventHandlers();
