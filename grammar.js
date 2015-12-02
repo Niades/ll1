@@ -1,62 +1,72 @@
 (function(window) {
-	function LexicalAnalyzer(input) {
-		this.input = input;
-		this.index = 0;
-		this.length = input.length;
-
-		this.lexemes = [
-			{
-				regex: /^([A-Z][A-Za-z]*)$/,
-				name: 'NonTerm'
-			},
-			{
-				regex: /^([a-z][A-Za-z]*)$/,
-				name: 'Term'
-			},
-			{
-				regex: /^->$/,
-				name: 'Product'
-			},
-			{
-				regex: /^\n$/,
-				name: 'Separator'
-			}
-		];
+	function NonTerm(name) {
+		this.name = name;
 	}
 
-	LexicalAnalyzer.prototype.skipSpaces = function() {
-		var spaces = [
-			' ',
-			'\r',
-			'\t'
-		];
-		while(_.indexOf(spaces, this.input[this.index]) != -1 && this.length != this.index) {
-			this.index++;
+	function Term(name) {
+		this.name = name;
+	}
+
+	var EPSILON = new Epsilon();
+	function Epsilon() {
+		return EPSILON;
+	}
+
+	function Product(head, result) {
+		this.head = head;
+		this.result = result;
+	}
+
+	function Grammar(products) {
+		this.products = products;
+	}
+
+	Grammar.prototype.first = function(symbol) {
+		if(symbol instanceof Term) {
+			return [symbol];
 		}
-	}
-
-	LexicalAnalyzer.prototype.getNextToken = function() {
-		this.skipSpaces();
-		var start = this.index;
-		while(this.length != this.index) {
-			var str = this.input.substring(start, this.index);
-			for(var i in this.lexemes) {
-				var lexeme = this.lexemes[i];
-				if(typeof(lexeme) == 'object') {
-					var result = lexeme.regex.exec(str);
-					if(result !== null) {
-						return {
-							text: result[0],
-							name: lexeme.name
-						};
-					}
+		var self = this;
+		var result = [];
+		_.each(this.products, function(product) {
+			if(product.head.name == symbol.name) {
+				// If the rule produces EPSILON
+				if(_.indexOf(product.result, EPSILON) > -1) {
+					result.push(EPSILON);
+				} else {
+					var includeNext = true;
+					_.each(product.result, function(r) {
+						if(includeNext) {
+							if(r.name != product.head.name) {
+								var firstr = self.first(r);
+								if(_.indexOf(firstr, EPSILON) == -1) {
+									includeNext = false;
+								}
+								result = _.union(result, firstr);
+							} else {
+								console.info('Avoided recursion.');
+							}
+						}
+					});
 				}
 			}
-			this.index++;
-		}
-		return null;
+		});
+		return result;
 	}
 
-	window.LexicalAnalyzer = LexicalAnalyzer;
+	Grammar.prototype.follow = function(symbol) {
+		_.each(this.products, function(product) {
+
+		});
+	}
+
+	function TermParser() {
+
+	}
+
+	window.Term = Term;
+	window.NonTerm = NonTerm;
+	window.Product = Product;
+	window.Grammar = Grammar;
+	window.EPSILON = EPSILON;
 })(window);
 
