@@ -31,6 +31,7 @@
 	}
 
 	Grammar.prototype.first = function(symbol) {
+		var self = this;
 		if(_.isArray(symbol)){
 			var includeNext = true;
 			_.each(symbol, function(r) {
@@ -47,7 +48,6 @@
 			if(symbol instanceof Term) {
 				return [symbol];
 			}
-			var self = this;
 			var result = [];
 			_.each(this.products, function(product) {
 				if(product.head.name == symbol.name) {
@@ -99,8 +99,7 @@
 					result = _.union(result, self.follow(product.head));
 				} else if(ntIndex < product.result.length - 1) {
 					// It is not the last
-					// Adding first of the first element
-					var f = self.first(product.result[ntIndex + 1]);
+					var f = self.first(_.slice(product.result, ntIndex + 1));
 					// If first contains epsilon
 					if(_.indexOf(f, EPSILON) >= -1) {
 						result = _.union(result, self.follow(product.head));
