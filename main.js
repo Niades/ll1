@@ -1,13 +1,16 @@
 (function() {
 	'use strict';
 	var g;
+	var errors = [];
 	function parseGrammar() {
+		errors = [];
 		function except(msg) {
-			alert('Error! ' + msg);
-			throw new Error(msg);
+			errors.push({
+				pos: analyzer.getState(),
+				msg: msg
+			});
 		}
 		var analyzer = new LexicalAnalyzer(document.querySelector('textarea').value);
-		console.info('Lexical analyzer initialized.');
 		var firstDone = false;
 		var rules = [];
 		while(true) {
@@ -15,16 +18,16 @@
 			if(token === null)
 				break;
 			if(token.name != 'NonTerm') {
-				except('Expected NonTerm');
+				except('Ожидался нетерминал');
 			}
 			var head = new NonTerm(token.text);
 			token = analyzer.getNextToken();
 			if(token.name != 'Product') {
-				except('Expected Product Sign');
+				except('Ожидался знак продукции');
 			}
 			token = analyzer.getNextToken();
 			if(token.name != 'Term' && token.name != 'NonTerm' && token.name != 'Epsilon') {
-				except('Rule cannot have an empty body');
+				except('Тело продукции не может быть пустым');
 			}
 			var result = [];
 			while(token !== null && token.name != 'Separator') {
@@ -35,7 +38,7 @@
 				} else if(token.name == 'Epsilon') {
 					result.push(EPSILON);
 				} else {
-					except('Rule contains neither term nor nonterm nor epsilon');
+					except('Продукция может содержать только нетерминалы и терминалы');
 				}
 				token = analyzer.getNextToken();
 			}
@@ -46,45 +49,55 @@
 			}
 			rules.push(rule);
 		}
-		g = new Grammar(rules);
-		console.info('Parsing completed.');
+		if(errors.length == 0) {
+			g = new Grammar(rules);
+		}
 	}
 
 	function render() {
-		var all = g.getAllNTs();
-		var $firstSelect = $('.first-select');
-		$firstSelect.html('<option value="">--</option>');
-		_.each(all, function(symbol) {
-			$firstSelect.append('<option value="' + symbol.name + '">' + symbol.name + '</option>');
-		});
-		var $followSelect = $('.follow-select');
-		$followSelect.html('<option value="">--</option>');
-		_.each(all, function(symbol) {
-			$followSelect.append('<option value="' + symbol.name + '">' + symbol.name + '</option>');
-		});
-		var terms = g.getAllTs();
-		var nterms = g.getAllNTs();
-		var table = g.getTable();
-		var $table = $('.parse-table');
-		var tableHtml = '<tr><th></th>'
-		_.each(terms, function(t) {
-			tableHtml += '<th>' + t.name + '</th>';
-		});
-		tableHtml += '</tr>';
-		_.each(nterms, function(nt) {
-			tableHtml += '<tr>';
-			tableHtml += '<td><b>' + nt.name + '</b></td>';
-			_.each(terms, function(t) {
-				tableHtml += '<td>'; 
-				if(table[nt.name]){
-					if(table[nt.name][t.name]) {
-						tableHtml += table[nt.name][t.name].toString();
-					}
-				}
-				tableHtml += '</td>';
+		if(errors.length > 0) {
+			var $errors = $('.errors');
+			$errors.html('');
+			_.each(errors, function(error) {
+				$errors.append('<div>' + error.msg + ':' + error.pos.columnNo + ':' + error.pos.lineNo + '</div>');
 			});
-		});
-		$table.html(tableHtml);
+		} else {
+			var all = g.getAllNTs();
+			var $firstSelect = $('.first-select');
+			$firstSelect.html('<option value="">--</option>');
+			_.each(all, function(symbol) {
+				$firstSelect.append('<option value="' + symbol.name + '">' + symbol.name + '</option>');
+			});
+			var $followSelect = $('.follow-select');
+			$followSelect.html('<option value="">--</option>');
+			_.each(all, function(symbol) {
+				$followSelect.append('<option value="' + symbol.name + '">' + symbol.name + '</option>');
+			});
+			$('.errors').html('');
+			var terms = g.getAllTs();
+			var nterms = g.getAllNTs();
+			var table = g.getTable();
+			var $table = $('.parse-table');
+			var tableHtml = '<tr><th></th>'
+			_.each(terms, function(t) {
+				tableHtml += '<th>' + t.name + '</th>';
+			});
+			tableHtml += '</tr>';
+			_.each(nterms, function(nt) {
+				tableHtml += '<tr>';
+				tableHtml += '<td><b>' + nt.name + '</b></td>';
+				_.each(terms, function(t) {
+					tableHtml += '<td>'; 
+					if(table[nt.name]){
+						if(table[nt.name][t.name]) {
+							tableHtml += table[nt.name][t.name].toString();
+						}
+					}
+					tableHtml += '</td>';
+				});
+			});
+			$table.html(tableHtml);
+		}
 	}
 
 	function attachDomEventHandlers() {
@@ -96,7 +109,7 @@
 			var f = g.follow(new NonTerm($(this).val()));
 			$('.follow-result').html(f.map(function(s){return s.name}).join(', '));
 		});
-		$('#do-parse').on('click', function() {
+		$('textarea').on('keyup', function() {
 			parseGrammar();
 			location.hash = LZString.compressToEncodedURIComponent($('textarea').val());
 			$('.grammar-link').val(location.toString());
