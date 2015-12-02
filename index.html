@@ -22,6 +22,9 @@ FACTOR -> id
 		<div class="controls">
 			<button id="do-parse">Перезагрузить грамматику</button>
 			<div>
+				Ссылка на эту грамматику: <input class="grammar-link" type="text">
+			</div>
+			<div>
 				FOLLOW(<select class="follow-select"></select>) = <span class="follow-result"></span>
 			</div>
 			<div>
@@ -33,6 +36,7 @@ FACTOR -> id
 			</table>
 		</div>
 	</body>
+	<script type="text/javascript" src="lib/lz-string.min.js"></script>
 	<script type="text/javascript" src="lib/lodash.min.js"></script>
 	<script type="text/javascript" src="lib/jquery-2.1.4.min.js"></script>
 	<script type="text/javascript" src="grammar.js"></script>
