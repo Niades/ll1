@@ -98,11 +98,17 @@
 		});
 		$('#do-parse').on('click', function() {
 			parseGrammar();
+			location.hash = LZString.compressToEncodedURIComponent($('textarea').val());
+			$('.grammar-link').val(location.toString());
 			render();
 		});
 	}
 
 	$(document).ready(function() {
+		if(location.hash !== "") {
+			$('textarea').val(LZString.decompressFromEncodedURIComponent(location.hash.substr(1)));
+			$('.grammar-link').val(location.toString());
+		}
 		parseGrammar();
 		attachDomEventHandlers();
 		render();
