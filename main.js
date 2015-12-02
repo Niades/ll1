@@ -75,10 +75,11 @@
 			tableHtml += '<tr>';
 			tableHtml += '<td><b>' + nt.name + '</b></td>';
 			_.each(terms, function(t) {
-				var production = table[nt.name][t.name];
 				tableHtml += '<td>'; 
-				if(production) {
-					tableHtml += production.toString();
+				if(table[nt.name]){
+					if(table[nt.name][t.name]) {
+						tableHtml += table[nt.name][t.name].toString();
+					}
 				}
 				tableHtml += '</td>';
 			});
