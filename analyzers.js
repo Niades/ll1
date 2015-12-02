@@ -1,9 +1,10 @@
 (function(window) {
 	function LexicalAnalyzer(input) {
 		this.input = input;
+		this.prevIndex = 0;
 		this.index = 0;
 		this.length = input.length;
-
+		this.lineCount = this.input.split('\n').length;
 		this.lexemes = [
 			{
 				regex: /^epsilon$/,
@@ -28,6 +29,16 @@
 		];
 	}
 
+	LexicalAnalyzer.prototype.getState = function() {
+		var lastLineStartIndex = this.input.lastIndexOf('\n', this.index) + 1;
+		var columnNo = this.prevIndex - lastLineStartIndex + 1;
+		var lineNo = this.input.substring(0, lastLineStartIndex).split('\n').length;
+		return {
+			lineNo: lineNo,
+			columnNo: columnNo
+		};
+	}
+
 	LexicalAnalyzer.prototype.skipSpaces = function() {
 		var spaces = [
 			' ',
@@ -47,6 +58,7 @@
 			lexemeStates[lexeme.name] = false;
 		});
 		var start = this.index;
+		this.prevIndex = this.index;
 		while(this.length != this.index) {
 			var prevStr = str;
 			var str = this.input.substring(start, this.index);
