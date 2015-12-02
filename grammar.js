@@ -7,14 +7,16 @@
 		this.name = name;
 	}
 
-	var EPSILON = new Epsilon();
 	function Epsilon() {
 		this.name = "~epsilon";
 	}
-	var EOF = new Eof();
+	Epsilon.prototype = Object.create(Term.prototype);
+	var EPSILON = new Epsilon();
 	function Eof() {
 		this.name = "~eof";
 	}
+	Eof.prototype = Object.create(Term.prototype);
+	var EOF = new Eof();
 
 	function Product(head, result, start) {
 		this.head = head;
@@ -24,6 +26,10 @@
 		} else {
 			this.start = start;
 		}
+	}
+
+	Product.prototype.toString = function() {
+		return this.head.name + ' -> ' + (this.result.map(function(r){return r.name}).join(' '));
 	}
 
 	function Grammar(products) {
@@ -123,6 +129,8 @@
 				if(r == EPSILON) {
 					containsEps = true;
 				}
+					console.log(r);
+
 				if(result[product.head.name] === undefined) {
 					result[product.head.name] = {};
 				}
@@ -160,7 +168,7 @@
 	}
 
 	Grammar.prototype.getAllTs = function() {
-		return _.filter(this.getAllSymbols(), function(s){ return s instanceof Term });
+		return _.union(_.filter(this.getAllSymbols(), function(s){ return s instanceof Term }), [EPSILON, EOF]);
 	}
 
 	window.Term = Term;
