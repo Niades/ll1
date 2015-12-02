@@ -129,8 +129,6 @@
 				if(r == EPSILON) {
 					containsEps = true;
 				}
-					console.log(r);
-
 				if(result[product.head.name] === undefined) {
 					result[product.head.name] = {};
 				}
