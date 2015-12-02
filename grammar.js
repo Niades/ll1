@@ -171,8 +171,8 @@
 
 	window.Term = Term;
 	window.NonTerm = NonTerm;
+	window.EPSILON = EPSILON;
 	window.Product = Product;
 	window.Grammar = Grammar;
-	window.EPSILON = EPSILON;
 })(window);
 
