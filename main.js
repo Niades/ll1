@@ -24,7 +24,6 @@
 			}
 			token = analyzer.getNextToken();
 			if(token.name != 'Term' && token.name != 'NonTerm' && token.name != 'Epsilon') {
-				console.log(token.name)
 				except('Rule cannot have an empty body');
 			}
 			var result = [];
@@ -66,7 +65,6 @@
 		var terms = g.getAllTs();
 		var nterms = g.getAllNTs();
 		var table = g.getTable();
-		console.log(table);
 		var $table = $('.parse-table');
 		var tableHtml = '<tr><th></th>'
 		_.each(terms, function(t) {
@@ -101,6 +99,7 @@
 
 	$('#do-parse').on('click', function() {
 		parseGrammar();
+		render();
 	});
 	$(document).ready(function() {
 		parseGrammar();
