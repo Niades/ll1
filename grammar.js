@@ -9,11 +9,11 @@
 
 	var EPSILON = new Epsilon();
 	function Epsilon() {
-		this.name = "Epsilon";
+		this.name = "~epsilon";
 	}
 	var EOF = new Eof();
 	function Eof() {
-		this.name = "EOF";
+		this.name = "~eof";
 	}
 
 	function Product(head, result, start) {
@@ -119,8 +119,19 @@
 		return _.find(this.products, function(p) {return p.start}).head;
 	}
 
-	function TermParser() {
+	Grammar.prototype.getAllSymbols = function() {
+		var result = [];
+		_.each(this.products, function(p) {
+			result.push(p.head);
+			_.each(p.result, function(r) {
+				result.push(r);
+			});
+		});
+		return _.uniq(result, 'name');
+	}
 
+	Grammar.prototype.getAllNTs = function() {
+		return _.filter(this.getAllSymbols(), function(s){ return s instanceof NonTerm });
 	}
 
 	window.Term = Term;
