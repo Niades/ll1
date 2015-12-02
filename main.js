@@ -58,7 +58,7 @@
 			$firstSelect.append('<option value="' + symbol.name + '">' + symbol.name + '</option>');
 		});
 		var $followSelect = $('.follow-select');
-		$followSelect.html('');
+		$followSelect.html('<option value="">--</option>');
 		_.each(all, function(symbol) {
 			$followSelect.append('<option value="' + symbol.name + '">' + symbol.name + '</option>');
 		});
