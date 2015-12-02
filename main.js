@@ -3,6 +3,7 @@
 	var g;
 	function parseGrammar() {
 		function except(msg) {
+			alert('Error! ' + msg);
 			throw new Error(msg);
 		}
 		var analyzer = new LexicalAnalyzer(document.querySelector('textarea').value);
@@ -62,6 +63,29 @@
 		_.each(all, function(symbol) {
 			$followSelect.append('<option value="' + symbol.name + '">' + symbol.name + '</option>');
 		});
+		var terms = g.getAllTs();
+		var nterms = g.getAllNTs();
+		var table = g.getTable();
+		console.log(table);
+		var $table = $('.parse-table');
+		var tableHtml = '<tr><th></th>'
+		_.each(terms, function(t) {
+			tableHtml += '<th>' + t.name + '</th>';
+		});
+		tableHtml += '</tr>';
+		_.each(nterms, function(nt) {
+			tableHtml += '<tr>';
+			tableHtml += '<td><b>' + nt.name + '</b></td>';
+			_.each(terms, function(t) {
+				var production = table[nt.name][t.name];
+				tableHtml += '<td>'; 
+				if(production) {
+					tableHtml += production.toString();
+				}
+				tableHtml += '</td>';
+			});
+		});
+		$table.html(tableHtml);
 	}
 
 	function attachDomEventHandlers() {

@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="utf-8">	
+		<meta charset="utf-8">
 		<title>Grammar helper</title>
+		<link rel="stylesheet" href="main.css">
 	</head>
 	<body>
 		<textarea style="width: 500px; height: 300px;">
@@ -26,6 +27,10 @@ FACTOR -> id
 			<div>
 				FIRST(<select class="first-select"></select>) = <span class="first-result"></span>
 			</div>
+		</div>
+		<div>
+			<table class="parse-table">
+			</table>
 		</div>
 	</body>
 	<script type="text/javascript" src="lib/lodash.min.js"></script>

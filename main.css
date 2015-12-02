@@ -1,0 +1,9 @@
+.parse-table td,
+.parse-table th {
+	border: 1px solid #000;
+	padding: 3px;
+}
+
+.parse-table {
+	border-collapse: collapse;
+}
