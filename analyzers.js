@@ -10,11 +10,11 @@
 				name: 'Epsilon'
 			},
 			{
-				regex: /^([A-Z][A-Za-z0-9]*)$/,
+				regex: /^([A-Z][A-Za-z0-9_]*)$/,
 				name: 'NonTerm'
 			},
 			{
-				regex: /^([a-z][A-Za-z]*)$/,
+				regex: /^([a-z][A-Za-z_]*)$/,
 				name: 'Term'
 			},
 			{
