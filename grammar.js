@@ -114,6 +114,32 @@
 		return result;
 	}
 
+	Grammar.prototype.getTable = function() {
+		var self = this;
+		var result = {};
+		_.each(this.products, function(product) {
+			var containsEps = false;
+			_.each(self.first(product.result), function(r) {
+				if(r == EPSILON) {
+					containsEps = true;
+				}
+				if(result[product.head.name] === undefined) {
+					result[product.head.name] = {};
+				}
+				result[product.head.name][r.name] = product;
+			});
+			if(containsEps) {
+				_.each(self.follow(product.head), function(r) {
+					if(result[product.head.name] === undefined) {
+						result[product.head.name] = {};
+					}
+					result[product.head.name][r.name] = product;
+				});
+			}
+		});
+		return result;
+	}
+
 	Grammar.prototype.getStartNt = function() {
 		return _.find(this.products, function(p) {return p.start}).head;
 	}
@@ -131,6 +157,10 @@
 
 	Grammar.prototype.getAllNTs = function() {
 		return _.filter(this.getAllSymbols(), function(s){ return s instanceof NonTerm });
+	}
+
+	Grammar.prototype.getAllTs = function() {
+		return _.filter(this.getAllSymbols(), function(s){ return s instanceof Term });
 	}
 
 	window.Term = Term;
