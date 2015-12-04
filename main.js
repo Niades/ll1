@@ -59,8 +59,17 @@
 			var $errors = $('.errors');
 			$errors.html('');
 			_.each(errors, function(error) {
-				$errors.append('<div>' + error.msg + ':' + error.pos.columnNo + ':' + error.pos.lineNo + '</div>');
+				$errors.append(
+					'<div><span class="error-msg">' + 
+					error.msg + 
+					'</span>:<span class="error-lineno">' +
+					error.pos.lineNo +
+					'</span>:<span class="error-colno">' +
+					error.pos.columnNo +
+					'</span></div>');
 			});
+			var $table = $('.parse-table');
+			$table.html('');
 		} else {
 			var all = g.getAllNTs();
 			var $firstSelect = $('.first-select');
@@ -78,14 +87,14 @@
 			var nterms = g.getAllNTs();
 			var table = g.getTable();
 			var $table = $('.parse-table');
-			var tableHtml = '<tr><th></th>'
+			var tableHtml = '<tr><th class="header"></th>'
 			_.each(terms, function(t) {
-				tableHtml += '<th>' + t.name + '</th>';
+				tableHtml += '<th class="header">' + t.name + '</th>';
 			});
 			tableHtml += '</tr>';
 			_.each(nterms, function(nt) {
 				tableHtml += '<tr>';
-				tableHtml += '<td><b>' + nt.name + '</b></td>';
+				tableHtml += '<td class="header">' + nt.name + '</td>';
 				_.each(terms, function(t) {
 					tableHtml += '<td>'; 
 					if(table[nt.name]){
