@@ -162,11 +162,11 @@
 	}
 
 	Grammar.prototype.getAllNTs = function() {
-		return _.filter(this.getAllSymbols(), function(s){ return s instanceof NonTerm });
+		return _.uniq(_.map(this.products, function(p) { return p.head }), 'name');
 	}
 
 	Grammar.prototype.getAllTs = function() {
-		return _.union(_.filter(this.getAllSymbols(), function(s){ return s instanceof Term }), [EPSILON, EOF]);
+		return _.union(_.filter(this.getAllSymbols(), function(s){ return s instanceof Term && s!==EPSILON && s !== EOF; }), [EOF]);
 	}
 
 	window.Term = Term;
