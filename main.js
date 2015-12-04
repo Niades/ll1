@@ -89,17 +89,17 @@
 			var $table = $('.parse-table');
 			var tableHtml = '<tr><th class="header"></th>'
 			_.each(terms, function(t) {
-				tableHtml += '<th class="header">' + t.name + '</th>';
+				tableHtml += '<th class="header term">' + t.name + '</th>';
 			});
 			tableHtml += '</tr>';
 			_.each(nterms, function(nt) {
 				tableHtml += '<tr>';
-				tableHtml += '<td class="header">' + nt.name + '</td>';
+				tableHtml += '<td class="header non-term">' + nt.name + '</td>';
 				_.each(terms, function(t) {
 					tableHtml += '<td>'; 
 					if(table[nt.name]){
 						if(table[nt.name][t.name]) {
-							tableHtml += table[nt.name][t.name].toString();
+							tableHtml += table[nt.name][t.name].toHtml();
 						}
 					}
 					tableHtml += '</td>';

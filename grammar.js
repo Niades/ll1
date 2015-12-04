@@ -28,8 +28,26 @@
 		}
 	}
 
-	Product.prototype.toString = function() {
-		return this.head.name + ' => ' + (this.result.map(function(r){return r.name}).join(' '));
+	Product.prototype.toHtml = function() {
+		return '<span class="non-term">' +
+				this.head.name +
+			   '</span>' +  
+			   ' <span class="product-sign">=></span> ' +
+			   (this.result
+			   		.map(
+						function(r) {
+							var klass;
+							if(r instanceof Term) {
+								klass = 'term';
+							} else if(r instanceof NonTerm) {
+								klass = 'non-term';
+							}
+							console.log(klass);
+							return ('<span class="' + klass + '">' + r.name + '</span>');
+						}
+					)
+					.join(' ')
+				);
 	}
 
 	function Grammar(products) {

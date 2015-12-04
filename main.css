@@ -1,18 +1,33 @@
 .parse-table td,
 .parse-table th {
-	border: 1px solid #000;
+	border: 1px solid #75715E;
 	padding: 3px;
 }
 
 .parse-table .header {
 	text-align: center;
 	font-weight: bold;
-	background: #eee;
+	background: #1a1a16;
 }
 
 .parse-table {
+	background: #272822;
 	border-collapse: collapse;
 	width: 100%;
+	font-family: 'Courier New', 'sans-serif';
+}
+
+.parse-table .term {
+	color: #A6E22E;
+}
+
+.parse-table .non-term {
+	color: #FD971F;
+	font-style: italic;
+}
+
+.parse-table .product-sign {
+	color: #F92672;
 }
 
 .grammar-input {
