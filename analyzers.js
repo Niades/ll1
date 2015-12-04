@@ -59,10 +59,10 @@
 		});
 		var start = this.index;
 		this.prevIndex = this.index;
+		var nextToken = null;
 		while(this.length != this.index) {
 			var prevStr = str;
 			var str = this.input.substring(start, this.index);
-			var nextToken = null;
 			_.each(this.lexemes, function(lexeme) {
 				if(nextToken === null) {
 					var result = lexeme.regex.exec(str);
@@ -84,7 +84,17 @@
 			}
 			this.index++;
 		}
-		return null;
+		_.each(this.lexemes, function(lexeme) {
+			if(lexemeStates[lexeme.name]) {
+				if(nextToken === null){
+					nextToken = {
+						text: lexeme.regex.exec(str)[0],
+						name: lexeme.name
+					};
+				}
+			}
+		});
+		return nextToken;
 	}
 
 	window.LexicalAnalyzer = LexicalAnalyzer;
