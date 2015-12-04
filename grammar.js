@@ -8,12 +8,12 @@
 	}
 
 	function Epsilon() {
-		this.name = "~epsilon";
+		this.name = "ε";
 	}
 	Epsilon.prototype = Object.create(Term.prototype);
 	var EPSILON = new Epsilon();
 	function Eof() {
-		this.name = "~eof";
+		this.name = "$";
 	}
 	Eof.prototype = Object.create(Term.prototype);
 	var EOF = new Eof();
@@ -29,7 +29,7 @@
 	}
 
 	Product.prototype.toString = function() {
-		return this.head.name + ' -> ' + (this.result.map(function(r){return r.name}).join(' '));
+		return this.head.name + ' => ' + (this.result.map(function(r){return r.name}).join(' '));
 	}
 
 	function Grammar(products) {
