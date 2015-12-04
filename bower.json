@@ -1,0 +1,14 @@
+{
+  "name": "GrammarHelper",
+  "homepage": "https://github.com/Niades/ll1",
+  "authors": [
+    "Daniil Polovinkin <dolovinkin@gmail.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "lodash": "~3.10.1",
+    "lz-string": "~1.4.4"
+  }
+}
