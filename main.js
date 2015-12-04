@@ -22,11 +22,11 @@
 			}
 			var head = new NonTerm(token.text);
 			token = analyzer.getNextToken();
-			if(token.name != 'Product') {
+			if(token && token.name != 'Product') {
 				except('Ожидался знак продукции');
 			}
 			token = analyzer.getNextToken();
-			if(token.name != 'Term' && token.name != 'NonTerm' && token.name != 'Epsilon') {
+			if(token && token.name != 'Term' && token.name != 'NonTerm' && token.name != 'Epsilon') {
 				except('Тело продукции не может быть пустым');
 			}
 			var result = [];
