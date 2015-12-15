@@ -124,6 +124,35 @@
 			$('.grammar-link').val(location.toString());
 			render();
 		});
+		var $table = $('.parse-table');
+		$table.on('mouseover', 'td:not(.header)', function() {
+			$table
+				.find('.highlighted')
+				.removeClass('highlighted');
+			var $this = $(this);
+			var colNo = $this
+				.parent()
+				.children()
+				.index($this);
+			var lineNo = $table
+				.find('tr')
+				.index($this.parent());
+			$table
+				.find('tr')
+				.each(function(i, el) {
+					var $this = $(el);
+					$this
+						.find('td')
+						.each(function(i, el) {
+							if(i == colNo) {
+								$(el).addClass('highlighted');
+							}
+						});
+					if(i == lineNo) {
+						$(el).addClass('highlighted');
+					}
+				})
+		});
 	}
 
 	$(document).ready(function() {
