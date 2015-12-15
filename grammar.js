@@ -42,12 +42,20 @@
 							} else if(r instanceof NonTerm) {
 								klass = 'non-term';
 							}
-							console.log(klass);
 							return ('<span class="' + klass + '">' + r.name + '</span>');
 						}
 					)
 					.join(' ')
 				);
+	}
+
+	function Item(product, dotPos) {
+		this.product = product;
+		this.dotPos = dotPos;
+	}
+
+	Item.prototype.getFollowingSymbol = function() {
+		return this.product.result[dotPos];
 	}
 
 	function Grammar(products) {
@@ -69,6 +77,7 @@
 			});
 			return result;
 		} else {
+			console.log('FIRST(' + symbol.name + ')');
 			if(symbol instanceof Term) {
 				return [symbol];
 			}
@@ -101,6 +110,7 @@
 	}
 
 	Grammar.prototype.follow = function(symbol) {
+		console.log('Getting FOLLOW(' + symbol.name + ')');
 		var self = this;
 		var result = [];
 		if(symbol.name == this.getStartNt().name) {
@@ -120,12 +130,17 @@
 				}
 				if(ntIndex == product.result.length - 1) {
 					// This is the very last non-term in product
+					console.log('#3, adding FOLLOW(' + product.head.name + ')');
 					result = _.union(result, self.follow(product.head));
 				} else if(ntIndex < product.result.length - 1) {
 					// It is not the last
-					var f = self.first(_.slice(product.result, ntIndex + 1));
+					var tail = _.slice(product.result, ntIndex + 1);
+					console.log(tail);
+					console.log('#1, adding FIRST(' + tail.map(function(a){return a.name}).join(" ") + ')');
+					var f = self.first(tail);
 					// If first contains epsilon
-					if(_.indexOf(f, EPSILON) >= -1) {
+					if(_.indexOf(f, EPSILON) > -1) {
+						console.log('#4, adding FOLLOW(' + product.head.name + ')');
 						result = _.union(result, self.follow(product.head));
 					}
 					result = _.union(result, _.difference(f, [EPSILON]));
@@ -160,6 +175,24 @@
 					result[product.head.name][r.name] = product;
 				});
 			}
+		});
+		return result;
+	}
+
+	Grammar.prototype.closure = function(item) {
+		var self = this;
+		var result = [];
+		if(!_.isArray(item)) {
+			item = [item];
+		}
+		result = _.union(item, result);
+		_.each(result, function(item) {
+			var followingSymbol = item.getFollowingSymbol();
+			_.each(self.products, function(product) {
+				if(product.head.name == followingSymbol.name) {
+					result.push(new Item(product, 0));
+				}
+			});
 		});
 		return result;
 	}
