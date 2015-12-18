@@ -15,11 +15,11 @@
 				name: 'NonTerm'
 			},
 			{
-				regex: /^([a-z][A-Za-z_]*)$/,
+				regex: /^([a-z_()\+-\/\*,\.][A-Za-z_()\+-\/\*,\.]*)$/,
 				name: 'Term'
 			},
 			{
-				regex: /^->$/,
+				regex: /^=>$/,
 				name: 'Product'
 			},
 			{

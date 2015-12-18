@@ -1,4 +1,10 @@
 (function(window) {
+	_.deepIndexOf = function(array, object) {
+		var index = -1;
+		_.each(array, function(el, i) { if(_.eq(el, object)) { index = i; return false; } });
+		return index;
+	}
+
 	function NonTerm(name) {
 		this.name = name;
 	}
@@ -8,12 +14,12 @@
 	}
 
 	function Epsilon() {
-		this.name = "~epsilon";
+		this.name = "ε";
 	}
 	Epsilon.prototype = Object.create(Term.prototype);
 	var EPSILON = new Epsilon();
 	function Eof() {
-		this.name = "~eof";
+		this.name = "$";
 	}
 	Eof.prototype = Object.create(Term.prototype);
 	var EOF = new Eof();
@@ -29,7 +35,55 @@
 	}
 
 	Product.prototype.toString = function() {
-		return this.head.name + ' -> ' + (this.result.map(function(r){return r.name}).join(' '));
+		return this.head.name + ' => ' + _.map(this.result, function(item) {return item.name}).join(' ');
+	}
+
+	Product.prototype.toHtml = function() {
+		return '<span class="non-term">' +
+				this.head.name +
+			   '</span>' +  
+			   ' <span class="product-sign">=></span> ' +
+			   (this.result
+			   		.map(
+						function(r) {
+							var klass;
+							if(r instanceof Term) {
+								klass = 'term';
+							} else if(r instanceof NonTerm) {
+								klass = 'non-term';
+							}
+							return ('<span class="' + klass + '">' + r.name + '</span>');
+						}
+					)
+					.join(' ')
+				);
+	}
+
+	function Item(product, dotPos) {
+		this.product = product;
+		this.dotPos = dotPos;
+	}
+
+	Item.prototype.getFollowingSymbol = function() {
+		return this.product.result[this.dotPos];
+	}
+
+	Item.prototype.toString = function() {
+		var dotPos = this.dotPos;
+		var productStr = this.product.toString();
+		var parts = productStr.split(' => ');
+		var results = parts[1].split(' ');
+		results = _
+			.map(results, function(r, i) {
+				if(i == dotPos)
+					r = "•" + r;
+				return r;
+			})
+			.join(' ');
+		if(results.indexOf("•") == -1) {
+			results += "•";
+		}
+		return parts[0] + " => " + results;
 	}
 
 	function Grammar(products) {
@@ -51,6 +105,7 @@
 			});
 			return result;
 		} else {
+			console.log('FIRST(' + symbol.name + ')');
 			if(symbol instanceof Term) {
 				return [symbol];
 			}
@@ -83,6 +138,7 @@
 	}
 
 	Grammar.prototype.follow = function(symbol) {
+		console.log('Getting FOLLOW(' + symbol.name + ')');
 		var self = this;
 		var result = [];
 		if(symbol.name == this.getStartNt().name) {
@@ -102,12 +158,17 @@
 				}
 				if(ntIndex == product.result.length - 1) {
 					// This is the very last non-term in product
+					console.log('#3, adding FOLLOW(' + product.head.name + ')');
 					result = _.union(result, self.follow(product.head));
 				} else if(ntIndex < product.result.length - 1) {
 					// It is not the last
-					var f = self.first(_.slice(product.result, ntIndex + 1));
+					var tail = _.slice(product.result, ntIndex + 1);
+					console.log(tail);
+					console.log('#1, adding FIRST(' + tail.map(function(a){return a.name}).join(" ") + ')');
+					var f = self.first(tail);
 					// If first contains epsilon
-					if(_.indexOf(f, EPSILON) >= -1) {
+					if(_.indexOf(f, EPSILON) > -1) {
+						console.log('#4, adding FOLLOW(' + product.head.name + ')');
 						result = _.union(result, self.follow(product.head));
 					}
 					result = _.union(result, _.difference(f, [EPSILON]));
@@ -146,6 +207,71 @@
 		return result;
 	}
 
+	Grammar.prototype.closure = function(item) {
+		var self = this;
+		var result = [];
+		if(!_.isArray(item)) {
+			item = [item];
+		}
+		result = _.union(item, result);
+		var len = 0;
+		do {
+			len = result.length;
+			_.each(result, function(item) {
+				var followingSymbol = item.getFollowingSymbol();
+				if(followingSymbol == undefined)
+					return;
+				_.each(self.products, function(product) {
+					if(product.head.name == followingSymbol.name) {
+						var item = new Item(product, 0);
+						if(_.deepIndexOf(result, item) == -1)
+							result.push(new Item(product, 0));
+					}
+				});
+			});
+		} while(result.length != len);
+		return result;
+	}
+
+	Grammar.prototype.goto = function(items, symbol) {
+		var result = [];
+		_.each(
+			_.filter(items, function(item) 
+				{ 
+					var next = item.getFollowingSymbol();
+					return next && next.name == symbol.name;
+				}),
+			function(item) {
+				result.push(new Item(item.product, item.dotPos + 1));
+			}
+		)
+		return this.closure(result);
+	}
+
+	Grammar.prototype.canonicalSet = function() {
+		var self = this;
+		var result = [];
+		var symbols = this.getAllSymbols();
+		var startProduct = this.products[0];
+		var startItem = new Item(startProduct, 0);
+		result.push(this.closure(startItem));
+		var hasChanged = false;
+		do {
+			hasChanged = false;
+			var length = result.length;
+			_.each(result, function(set) {
+				_.each(symbols, function(symbol) {
+					var g = self.goto(set, symbol);
+					if(g.length > 0 && _.deepIndexOf(result, g) == -1) {
+						result.push(g);
+						hasChanged = true;
+					}
+				});
+			});
+		} while(hasChanged);
+		return result;
+	}
+
 	Grammar.prototype.getStartNt = function() {
 		return _.find(this.products, function(p) {return p.start}).head;
 	}
@@ -171,6 +297,7 @@
 
 	window.Term = Term;
 	window.NonTerm = NonTerm;
+	window.Item = Item;
 	window.EPSILON = EPSILON;
 	window.Product = Product;
 	window.Grammar = Grammar;

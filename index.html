@@ -7,17 +7,17 @@
 	</head>
 	<body>
 		<textarea class="grammar-input">
-GOAL -> EXPR
-EXPR -> TERM EXPR1
-EXPR1 -> plus TERM EXPR1
-EXPR1 -> minus TERM EXPR1
-EXPR1 -> epsilon
-TERM -> FACTOR TERM1
-TERM1 -> mul FACTOR TERM1
-TERM1 -> div FACTOR TERM1
-TERM1 -> epsilon
-FACTOR -> num
-FACTOR -> id
+GOAL => EXPR
+EXPR => TERM EXPR1
+EXPR1 => + TERM EXPR1
+EXPR1 => - TERM EXPR1
+EXPR1 => epsilon
+TERM => FACTOR TERM1
+TERM1 => * FACTOR TERM1
+TERM1 => / FACTOR TERM1
+TERM1 => epsilon
+FACTOR => num
+FACTOR => id
 		</textarea>
 		<div class="errors">
 		</div>
@@ -33,9 +33,22 @@ FACTOR -> id
 			</div>
 		</div>
 		<div>
-			<h2>Таблица разбора</h2>
-			<table class="parse-table">
-			</table>
+			<div>
+				Вид разбора
+				<select id="parse_type">
+					<option value="topdown">Сверху вниз</option>
+					<option value="bottomup">Снизу вверх</option>
+				</select>
+			</div>
+			<div class="parse-output" id="topdown">
+				<h2>Таблица разбора</h2>
+				<table class="parse-table">
+				</table>
+			</div>
+			<div class="parse-output" id="bottomup">
+				<div>Каноническая совокупность</div>
+				<div id="canonical_set"></div>
+			</div>
 		</div>
 	</body>
 	<script type="text/javascript" src="bower_components/lz-string/libs/lz-string.min.js"></script>

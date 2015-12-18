@@ -22,11 +22,11 @@
 			}
 			var head = new NonTerm(token.text);
 			token = analyzer.getNextToken();
-			if(token && token.name != 'Product') {
+			if(!token || token.name != 'Product') {
 				except('Ожидался знак продукции');
 			}
 			token = analyzer.getNextToken();
-			if(token && token.name != 'Term' && token.name != 'NonTerm' && token.name != 'Epsilon') {
+			if(!token || (token.name != 'Term' && token.name != 'NonTerm' && token.name != 'Epsilon')) {
 				except('Тело продукции не может быть пустым');
 			}
 			var result = [];
@@ -83,29 +83,38 @@
 				$followSelect.append('<option value="' + symbol.name + '">' + symbol.name + '</option>');
 			});
 			$('.errors').html('');
-			var terms = g.getAllTs();
-			var nterms = g.getAllNTs();
-			var table = g.getTable();
-			var $table = $('.parse-table');
-			var tableHtml = '<tr><th class="header"></th>'
-			_.each(terms, function(t) {
-				tableHtml += '<th class="header">' + t.name + '</th>';
-			});
-			tableHtml += '</tr>';
-			_.each(nterms, function(nt) {
-				tableHtml += '<tr>';
-				tableHtml += '<td class="header">' + nt.name + '</td>';
+			if($('#parse_type').val() == "topdown") {
+				var terms = g.getAllTs();
+				var nterms = g.getAllNTs();
+				var table = g.getTable();
+				var $table = $('.parse-table');
+				var tableHtml = '<tr><th class="header"></th>'
 				_.each(terms, function(t) {
-					tableHtml += '<td>'; 
-					if(table[nt.name]){
-						if(table[nt.name][t.name]) {
-							tableHtml += table[nt.name][t.name].toString();
-						}
-					}
-					tableHtml += '</td>';
+					tableHtml += '<th class="header term">' + t.name + '</th>';
 				});
-			});
-			$table.html(tableHtml);
+				tableHtml += '</tr>';
+				_.each(nterms, function(nt) {
+					tableHtml += '<tr>';
+					tableHtml += '<td class="header non-term">' + nt.name + '</td>';
+					_.each(terms, function(t) {
+						tableHtml += '<td>'; 
+						if(table[nt.name]){
+							if(table[nt.name][t.name]) {
+								tableHtml += table[nt.name][t.name].toHtml();
+							}
+						}
+						tableHtml += '</td>';
+					});
+				});
+				$table.html(tableHtml);
+			} else {
+				var html = "";
+				_.each(g.canonicalSet(), function(state, i) {
+					html += ('<b>I' + i + '</b> = [' + _.map(state, function(item) { return item.toString() }).join(", ")+ "]<br>");
+				});
+				$("#canonical_set")
+					.html(html);
+			}
 		}
 	}
 
@@ -123,6 +132,40 @@
 			location.hash = LZString.compressToEncodedURIComponent($('textarea').val());
 			$('.grammar-link').val(location.toString());
 			render();
+		});
+		$('#parse_type').on('change', function() {
+			$('.parse-output').hide();
+			$('#' + $(this).val()).show();
+			render();
+		});
+		var $table = $('.parse-table');
+		$table.on('mouseover', 'td:not(.header)', function() {
+			$table
+				.find('.highlighted')
+				.removeClass('highlighted');
+			var $this = $(this);
+			var colNo = $this
+				.parent()
+				.children()
+				.index($this);
+			var lineNo = $table
+				.find('tr')
+				.index($this.parent());
+			$table
+				.find('tr')
+				.each(function(i, el) {
+					var $this = $(el);
+					$this
+						.find('td')
+						.each(function(i, el) {
+							if(i == colNo) {
+								$(el).addClass('highlighted');
+							}
+						});
+					if(i == lineNo) {
+						$(el).addClass('highlighted');
+					}
+				})
 		});
 	}
 
