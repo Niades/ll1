@@ -5,6 +5,10 @@
 		return index;
 	}
 
+	_.deepContains = function(array, object) {
+		return _.deepIndexOf(array, object) > -1;
+	}
+
 	function NonTerm(name) {
 		this.name = name;
 	}
@@ -248,6 +252,37 @@
 		return this.closure(result);
 	}
 
+	Grammar.prototype.gotoNoClosure = function(items, symbol) {
+		var result = [];
+		_.each(
+			_.filter(items, function(item) 
+				{ 
+					var next = item.getFollowingSymbol();
+					return next && next.name == symbol.name;
+				}),
+			function(item) {
+				result.push(new Item(item.product, item.dotPos + 1));
+			}
+		)
+		return result;
+	}
+
+	Grammar.prototype.getAllTransitionSymbols = function(from, to) {
+		var self = this;
+		var symbols = this.getAllSymbols();
+		var result = [];
+		_.each(symbols, function(symbol) {
+			_.each(self.gotoNoClosure(from, symbol), function(item) {
+				if(_.deepContains(to, item)) {
+					if(!_.deepContains(result, symbol)) {
+						result.push(symbol);
+					}
+				}
+			});
+		});
+		return result;
+	}
+
 	Grammar.prototype.canonicalSet = function() {
 		var self = this;
 		var result = [];
@@ -255,21 +290,71 @@
 		var startProduct = this.products[0];
 		var startItem = new Item(startProduct, 0);
 		result.push(this.closure(startItem));
+		var trans = [];
 		var hasChanged = false;
 		do {
 			hasChanged = false;
 			var length = result.length;
-			_.each(result, function(set) {
+			_.each(result, function(set, i) {
 				_.each(symbols, function(symbol) {
 					var g = self.goto(set, symbol);
 					if(g.length > 0 && _.deepIndexOf(result, g) == -1) {
 						result.push(g);
-						hasChanged = true;
+						_.each(result, function(set, j) {
+							_.each(self.getAllTransitionSymbols(g, set), function(symbol) {
+								trans.push({
+									from: length,
+									by: symbol.name,
+									to: j
+								});
+							});
+						});
+						trans.push({
+							from: i,
+							by: symbol.name,
+							to: length
+						});
+						length++;
+						hasChanged = true;	
 					}
 				});
 			});
 		} while(hasChanged);
+		result.transitions = trans;
 		return result;
+	}
+
+	Grammar.prototype.getCanonicalSetTransitions = function() {
+		var self = this;
+		var symbols = this.getAllSymbols();
+		var set = this.canonicalSet();
+		var result = [];
+		_.each(set, function(items1, i) {
+			_.each(symbols, function(symbol) {
+				_.each(self.gotoNoClosure(items1, symbol), function(item) {
+					_.each(set, function(items2, j) {
+						if(_.deepContains(items2, item)) {
+							var transition = {
+								from: i,
+								by: symbol,
+								to: j
+							};
+							if(!_.deepContains(result, transition)) {					
+								console.log('I' + j + ' contains ', item.toString());
+								console.log('which is reachable from I' + i + ' by ' + symbol.name);
+								result.push(transition);
+							}
+						}
+					});
+				});
+			});
+		});
+		return result;
+	}
+
+	Grammar.prototype.getSLRTable = function() {
+		var set = this.canonicalSet();
+
 	}
 
 	Grammar.prototype.getStartNt = function() {
