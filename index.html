@@ -33,9 +33,22 @@ FACTOR => id
 			</div>
 		</div>
 		<div>
-			<h2>Таблица разбора</h2>
-			<table class="parse-table">
-			</table>
+			<div>
+				Вид разбора
+				<select id="parse_type">
+					<option value="topdown">Сверху вниз</option>
+					<option value="bottomup">Снизу вверх</option>
+				</select>
+			</div>
+			<div class="parse-output" id="topdown">
+				<h2>Таблица разбора</h2>
+				<table class="parse-table">
+				</table>
+			</div>
+			<div class="parse-output" id="bottomup">
+				<div>Каноническая совокупность</div>
+				<div id="canonical_set"></div>
+			</div>
 		</div>
 	</body>
 	<script type="text/javascript" src="bower_components/lz-string/libs/lz-string.min.js"></script>

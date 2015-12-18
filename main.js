@@ -83,29 +83,38 @@
 				$followSelect.append('<option value="' + symbol.name + '">' + symbol.name + '</option>');
 			});
 			$('.errors').html('');
-			var terms = g.getAllTs();
-			var nterms = g.getAllNTs();
-			var table = g.getTable();
-			var $table = $('.parse-table');
-			var tableHtml = '<tr><th class="header"></th>'
-			_.each(terms, function(t) {
-				tableHtml += '<th class="header term">' + t.name + '</th>';
-			});
-			tableHtml += '</tr>';
-			_.each(nterms, function(nt) {
-				tableHtml += '<tr>';
-				tableHtml += '<td class="header non-term">' + nt.name + '</td>';
+			if($('#parse_type').val() == "topdown") {
+				var terms = g.getAllTs();
+				var nterms = g.getAllNTs();
+				var table = g.getTable();
+				var $table = $('.parse-table');
+				var tableHtml = '<tr><th class="header"></th>'
 				_.each(terms, function(t) {
-					tableHtml += '<td>'; 
-					if(table[nt.name]){
-						if(table[nt.name][t.name]) {
-							tableHtml += table[nt.name][t.name].toHtml();
-						}
-					}
-					tableHtml += '</td>';
+					tableHtml += '<th class="header term">' + t.name + '</th>';
 				});
-			});
-			$table.html(tableHtml);
+				tableHtml += '</tr>';
+				_.each(nterms, function(nt) {
+					tableHtml += '<tr>';
+					tableHtml += '<td class="header non-term">' + nt.name + '</td>';
+					_.each(terms, function(t) {
+						tableHtml += '<td>'; 
+						if(table[nt.name]){
+							if(table[nt.name][t.name]) {
+								tableHtml += table[nt.name][t.name].toHtml();
+							}
+						}
+						tableHtml += '</td>';
+					});
+				});
+				$table.html(tableHtml);
+			} else {
+				var html = "";
+				_.each(g.canonicalSet(), function(state, i) {
+					html += ('I' + i + ' = [' + _.map(state, function(item) { return item.toString() }).join(", ")+ "]<br>");
+				});
+				$("#canonical_set")
+					.html(html);
+			}
 		}
 	}
 
@@ -122,6 +131,11 @@
 			parseGrammar();
 			location.hash = LZString.compressToEncodedURIComponent($('textarea').val());
 			$('.grammar-link').val(location.toString());
+			render();
+		});
+		$('#parse_type').on('change', function() {
+			$('.parse-output').hide();
+			$('#' + $(this).val()).show();
 			render();
 		});
 		var $table = $('.parse-table');
