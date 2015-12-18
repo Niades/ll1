@@ -38,3 +38,18 @@
 .highlighted {
 	background: #373832;
 }
+
+svg {
+	min-width: 100%;
+}
+
+.edgePath path {
+  stroke: #333;
+  fill: #333;
+  stroke-width: 1.5px;
+}
+
+.node rect {
+  stroke: #333;
+  fill: #fff;
+}
