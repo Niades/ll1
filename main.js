@@ -110,7 +110,7 @@
 			} else {
 				var html = "";
 				_.each(g.canonicalSet(), function(state, i) {
-					html += ('I' + i + ' = [' + _.map(state, function(item) { return item.toString() }).join(", ")+ "]<br>");
+					html += ('<b>I' + i + '</b> = [' + _.map(state, function(item) { return item.toString() }).join(", ")+ "]<br>");
 				});
 				$("#canonical_set")
 					.html(html);
